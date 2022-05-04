@@ -24,3 +24,7 @@ let assertJohn = (calculateTotal john 100.0M = 90.0M)
 let assertMary = (calculateTotal mary 99.0M = 99.0M)
 let assertRichard = (calculateTotal richard 100.0M = 100.0M)
 let assertSarah = (calculateTotal sarah 100.0M = 100.0M)
+
+//chapter-2: partial application
+let partial = calculateTotal john
+let complete = partial 100.0M
