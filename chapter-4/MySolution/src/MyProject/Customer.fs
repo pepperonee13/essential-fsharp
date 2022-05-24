@@ -41,7 +41,7 @@ module Domain =
         | None -> Ok ()
 
     let createCustomer customerId =
-        { CustomerId=customerId; IsRegistered = true; IsEligible = false }
+        { CustomerId = customerId; IsRegistered = true; IsEligible = false }
 
     let tryCreateCustomer customerId (customer:Customer option) =
         try
@@ -50,6 +50,74 @@ module Domain =
             | None -> Ok (createCustomer customerId)
         with
         | ex -> Error ex
+
+
+    let upgradeCustomer_withProblems customerId =
+        customerId
+        |> Db.tryGetCustomer
+        |> convertToEligible
+        |> Db.saveCustomer
+
+    let v_next customerId =
+        let getCustomerResult = Db.tryGetCustomer customerId    
+        let converted = convertToEligible getCustomerResult
+        let saved = Db.saveCustomer converted
+        saved
+
+
+    let upgradeCustomer_v1 customerId =
+        let getCustomerResult = Db.tryGetCustomer customerId
+
+        //QUESTION: why do we return Result and not Option?
+        let converted = 
+            match getCustomerResult with
+            | Ok customerOption ->
+                match customerOption with
+                | Some c -> Some (convertToEligible c)
+                | None -> None
+                |>  Ok
+            | Error ex -> Error ex
+
+        let saved = 
+            match converted with
+            | Ok c ->
+                match c with
+                | Some c -> Db.saveCustomer c
+                | None -> Ok ()
+            | Error ex -> Error ex
+        saved
+
+    let upgradeCustomer_v2 customerId =
+        let getCustomerResult = Db.tryGetCustomer customerId
+
+        let converted = 
+            match getCustomerResult with
+            | Ok customerOption ->
+                match customerOption with
+                | Some c -> Some (convertToEligible c)
+                | None -> None
+                |>  Ok
+            | Error ex -> Error ex
+
+        let saved = 
+            match converted with
+            | Ok c -> trySaveCustomer c
+            | Error ex -> Error ex
+        saved
+
+    let upgradeCustomer_v3 customerId =
+        let getCustomerResult = Db.tryGetCustomer customerId
+
+        let converted = 
+            match getCustomerResult with
+            | Ok c -> c |> Option.map convertToEligible |> Ok
+            | Error ex -> Error ex
+
+        let saved = 
+            match converted with
+            | Ok c -> trySaveCustomer c
+            | Error ex -> Error ex
+        saved
 
     let upgradeCustomer customerId =
         customerId
