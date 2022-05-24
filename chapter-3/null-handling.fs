@@ -20,7 +20,7 @@ let result = Option.defaultValue "------" fromNullObj
 
 let result2 = resultPM fromNullObj
 
-//C# ?? operator is nicer ^^
+//NOTE: C# ?? operator is nicer ^^
 
 
 let setDefault = Option.defaultValue "<default>"
