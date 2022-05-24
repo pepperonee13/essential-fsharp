@@ -46,7 +46,7 @@ module Domain =
     let tryCreateCustomer customerId (customer:Customer option) =
         try
             match customer with
-            | Some _ -> raise (exn $"Customer '{customerId} already exists'")
+            | Some _ -> raise (exn $"Customer '{customerId}' already exists")
             | None -> Ok (createCustomer customerId)
         with
         | ex -> Error ex
