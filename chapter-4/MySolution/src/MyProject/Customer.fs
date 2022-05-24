@@ -40,8 +40,31 @@ module Domain =
         | Some c -> Db.saveCustomer c
         | None -> Ok ()
 
+    let createCustomer customerId =
+        { CustomerId=customerId; IsRegistered = true; IsEligible = false }
+
+    let tryCreateCustomer customerId (customer:Customer option) =
+        try
+            match customer with
+            | Some _ -> raise (exn $"Customer '{customerId} already exists'")
+            | None -> Ok (createCustomer customerId)
+        with
+        | ex -> Error ex
+
     let upgradeCustomer customerId =
         customerId
         |> Db.tryGetCustomer
         |> Result.map (Option.map convertToEligible)
         |> Result.bind trySaveCustomer
+
+    let registerCustomer customerId =
+        customerId
+        |> Db.tryGetCustomer
+        |> Result.bind (tryCreateCustomer customerId)
+        |> Result.bind Db.saveCustomer
+
+    // let registerCustomer customerId =
+    //     customerId
+    //     |> Db.tryGetCustomer
+    //     |> createCustomer
+    //     |> Db.saveCustomer
