@@ -62,9 +62,3 @@ module Domain =
         |> Db.tryGetCustomer
         |> Result.bind (tryCreateCustomer customerId)
         |> Result.bind Db.saveCustomer
-
-    // let registerCustomer customerId =
-    //     customerId
-    //     |> Db.tryGetCustomer
-    //     |> createCustomer
-    //     |> Db.saveCustomer
