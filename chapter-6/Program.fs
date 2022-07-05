@@ -21,7 +21,18 @@ let readFile : DataReader =
             }
             |> Ok
         with
-        | ex -> Error ex
+        | ex -> Error ex        
+
+let fakeDataReader : DataReader =
+    fun _ ->
+        seq {
+            "CustomerId|Email|Eligible|Registered|DateRegistered|Discount"
+            "John|john@test.com|1|1|2015-01-23|0.1"
+            "Mary|mary@test.com|1|1|2018-12-12|0.1"
+            "Richard|richard@nottest.com|0|1|2016-03-23|0.0"
+            "Sarah||0|0||"
+        }
+        |> Ok
 
 let parseLine (line:string) : Customer option =
     match line.Split('|') with
@@ -55,5 +66,6 @@ let import (dataReader: DataReader) path =
 let path = Path.Combine(__SOURCE_DIRECTORY__,"resources", "customers.csv")
 
 let importFromFile = import readFile
+let importFromString = import fakeDataReader
 
-path |> importFromFile
+path |> importFromString
