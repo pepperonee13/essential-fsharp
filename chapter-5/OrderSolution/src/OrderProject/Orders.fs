@@ -39,6 +39,21 @@ module Domain =
             |> sort
         {order with Items = items}
 
+    let removeProduct productId order =
+        let items =
+            order.Items
+            |> List.filter (fun i -> i.ProductId <> productId)
+        { order with Items = items}
+
+    let reduceItem productId quantity order =
+        let item = { ProductId = productId; Quantity = -quantity}
+        let items = 
+            item::order.Items
+            |> recalculate
+            |> List.filter (fun i -> i.Quantity > 0)
+            |> sort
+        { order with Items = items }
+
     // let order = { Id = 1; Items = [ { ProductId = 1; Quantity = 1 } ] }
     // let newItemExistingProduct = { ProductId = 1; Quantity = 1 }
     // let newItemNewProduct = { ProductId = 2; Quantity = 2 }

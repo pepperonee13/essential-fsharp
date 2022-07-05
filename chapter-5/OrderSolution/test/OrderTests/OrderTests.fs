@@ -53,3 +53,55 @@ module ``Add multiple items to order`` =
         let order = existingOrder |> addItems [{ProductId = 1; Quantity = 1}; {ProductId = 2; Quantity = 5}]
 
         order |> should equal expected
+
+module ``Remove product from order`` =
+    [<Fact>]
+    let ``given empty order should not have effect`` () =
+        let order = { Id = 1; Items = []}
+
+        let updated = order |> removeProduct 1
+
+        updated |> should equal order
+
+    [<Fact>]
+    let ``given order has product`` () =
+        let order = { Id = 1; Items = [ {ProductId = 1; Quantity = 1} ]}
+        
+        let updated = order |> removeProduct 1
+
+        updated |> should equal { Id = 1; Items = []}
+
+    [<Fact>]
+    let ``given order does not have product`` () =
+        let order = { Id = 1; Items = [ {ProductId = 1; Quantity = 1} ]}
+        
+        let updated = order |> removeProduct 2
+
+        updated |> should equal { Id = 1; Items = [{ProductId = 1; Quantity = 1}]}
+
+module ``Reduce item quantity`` =
+    [<Fact>]
+    let ``so that quantity should still remain`` () =
+        let order = { Id = 1; Items = [ {ProductId = 1; Quantity = 2} ]}
+
+        let updated = order |> reduceItem 1 1
+
+        updated |> should equal { Id = 1; Items = [{ProductId = 1; Quantity = 1}]}
+
+    let ``so that all units are removed`` () =
+        let order = { Id = 1; Items = [ {ProductId = 1; Quantity = 5} ]}
+        let expected = {Id = 1; Items = []}
+
+        let updated = order |> reduceItem 1 5
+
+        updated |> should equal {Id = 1; Items = []}
+
+    let ``when product does not exist`` () =
+        let order = { Id = 1; Items = [ {ProductId = 1; Quantity = 5} ]}
+        let expected = { Id = 1; Items = [ {ProductId = 1; Quantity = 5} ]}
+
+        let updated = order |> reduceItem 2 5
+
+        updated |> should equal expected
+
+    
