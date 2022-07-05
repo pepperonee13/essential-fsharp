@@ -88,6 +88,7 @@ module ``Reduce item quantity`` =
 
         updated |> should equal { Id = 1; Items = [{ProductId = 1; Quantity = 1}]}
 
+    [<Fact>]
     let ``so that all units are removed`` () =
         let order = { Id = 1; Items = [ {ProductId = 1; Quantity = 5} ]}
         let expected = {Id = 1; Items = []}
@@ -96,6 +97,7 @@ module ``Reduce item quantity`` =
 
         updated |> should equal {Id = 1; Items = []}
 
+    [<Fact>]
     let ``when product does not exist`` () =
         let order = { Id = 1; Items = [ {ProductId = 1; Quantity = 5} ]}
         let expected = { Id = 1; Items = [ {ProductId = 1; Quantity = 5} ]}
@@ -104,4 +106,19 @@ module ``Reduce item quantity`` =
 
         updated |> should equal expected
 
-    
+module ``Clear items`` =
+    [<Fact>]
+    let ``on empty order`` () =
+        let order = { Id = 1; Items = []}
+
+        let updated = order |> clearItems
+
+        updated |> should equal {Id=1;Items = []}
+
+    [<Fact>]
+    let ``on order with items`` () =
+        let order = { Id = 1; Items = [ {ProductId = 1; Quantity = 5} ]}
+
+        let updated = order |> clearItems
+
+        updated |> should equal {Id = 1; Items = []}

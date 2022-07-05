@@ -54,6 +54,9 @@ module Domain =
             |> sort
         { order with Items = items }
 
+    let clearItems order =
+        { order with Items = [] }
+
     // let order = { Id = 1; Items = [ { ProductId = 1; Quantity = 1 } ] }
     // let newItemExistingProduct = { ProductId = 1; Quantity = 1 }
     // let newItemNewProduct = { ProductId = 2; Quantity = 2 }
