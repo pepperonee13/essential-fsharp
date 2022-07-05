@@ -23,13 +23,21 @@ module Domain =
             |> List.sortBy (fun i -> i.ProductId)
         {order with Items = items}
 
-        
-    let order = { Id = 1; Items = [ { ProductId = 1; Quantity = 1 } ] }
-    let newItemExistingProduct = { ProductId = 1; Quantity = 1 }
-    let newItemNewProduct = { ProductId = 2; Quantity = 2 }
+    let addItems newItems order =
+        let items =
+            newItems @ order.Items
+            |> List.groupBy (fun i -> i.ProductId)
+            |> List.map (fun (id, items) -> 
+                { ProductId = id; Quantity = items |> List.sumBy (fun i -> i.Quantity) })
+            |> List.sortBy (fun i -> i.ProductId)
+        {order with Items = items}
 
-    addItem newItemNewProduct order = 
-        { Id = 1; Items = [ { ProductId = 1; Quantity = 1}; { ProductId = 2; Quantity = 2 } ] }
+    // let order = { Id = 1; Items = [ { ProductId = 1; Quantity = 1 } ] }
+    // let newItemExistingProduct = { ProductId = 1; Quantity = 1 }
+    // let newItemNewProduct = { ProductId = 2; Quantity = 2 }
 
-    addItem newItemExistingProduct order =  
-        { Id = 1; Items = [ { ProductId = 1; Quantity = 2 } ] }
+    // addItem newItemNewProduct order = 
+    //     { Id = 1; Items = [ { ProductId = 1; Quantity = 1}; { ProductId = 2; Quantity = 2 } ] }
+
+    // addItem newItemExistingProduct order =  
+    //     { Id = 1; Items = [ { ProductId = 1; Quantity = 2 } ] }
