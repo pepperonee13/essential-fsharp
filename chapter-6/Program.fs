@@ -47,7 +47,7 @@ let parseLine (line:string) : Customer option =
         }
     | _ -> None
 
-let parseCustomer (data:string seq) =
+let parseCustomer data =
     data
     |> Seq.skip 1
     |> Seq.map parseLine
