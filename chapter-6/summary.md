@@ -8,6 +8,6 @@
     - Seq.choose ignores None 
         - id means (fun x -> x)
 - printfn "%A" -> prints readable string on records (.ToString()?)
-- pattern match string array with |field1, field2, field3|
+- [|] -> array
 - Questions:
     - when to set function signature explicitly
