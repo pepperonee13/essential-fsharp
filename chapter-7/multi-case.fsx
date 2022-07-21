@@ -1,50 +1,51 @@
 //multi-case active patterns
 type Score = int * int
 
-let addPointsForCorrectScore (score:Score*Score*int) =
-    let predicted, actual ,points = score
-    match predicted,actual,points with
-    | (h,a),(h',a'),_ when h = h' && a = a' -> (predicted, actual, points + 300)
-    | _ -> score
+let addPointsForCorrectScore (score:Score*Score) =
+    let predicted, actual = score
+    match predicted,actual with
+    | (h,a),(h',a') when h = h' && a = a' -> 300
+    | _ -> 0
 
-let addPointsForCorrectResult (score:Score*Score*int) =
-    let predicted, actual ,points = score
-    match predicted,actual,points with
-    | (h,a),(h',a'),_ when h > a && h' > a' -> (predicted, actual, points + 100)
-    | (h,a),(h',a'),_ when h < a && h' < a' -> (predicted, actual, points + 100)
-    | (h,a),(h',a'),_ when h = a && h' = a' -> (predicted, actual, points + 100)
-    | _ -> score
+let addPointsForCorrectResult (score:Score*Score) =
+    let predicted, actual = score
+    match predicted,actual with
+    | (h,a),(h',a') when h > a && h' > a' -> 100
+    | (h,a),(h',a') when h < a && h' < a' -> 100
+    | (h,a),(h',a') when h = a && h' = a' -> 100
+    | _ -> 0
 
-let addPointsPerHomeGoal (score:Score*Score*int) =
-    let predicted, actual ,points = score
-    match predicted,actual,points with
-    | (h,a),(h',a'),_ when h < h' -> (predicted, actual, points + h*15)
-    | (h,a),(h',a'),_ when h' < h -> (predicted, actual, points + h'*15)
-    | (h,a),(h',a'),_ when h' = h -> (predicted, actual, points + h'*15)
-    | _ -> score
+let addPointsPerHomeGoal (score:Score*Score) =
+    let predicted, actual  = score
+    match predicted,actual with
+    | (h,a),(h',a') when h < h' -> h*15
+    | (h,a),(h',a') when h' < h -> h'*15
+    | (h,a),(h',a') when h' = h -> h'*15
+    | _ -> 0
 
-let addPointsPerAwayGoal (score:Score*Score*int) =
-    let predicted, actual ,points = score
-    match predicted,actual,points with
-    | (h,a),(h',a'),_ when a < a' -> (predicted, actual, points + a*20)
-    | (h,a),(h',a'),_ when a' < a -> (predicted, actual, points + a'*20)
-    | (h,a),(h',a'),_ when a' = a -> (predicted, actual, points + a'*20)
-    | _ -> score
+let addPointsPerAwayGoal (score:Score*Score) =
+    let predicted, actual  = score
+    match predicted,actual with
+    | (h,a),(h',a') when a < a' -> a*20
+    | (h,a),(h',a') when a' < a -> a'*20
+    | (h,a),(h',a') when a' = a -> a'*20
+    | _ -> 0
 
 
+let calculateScore (score:Score*Score) =
+    let predicted, actual = score
 
-let calculateScore (score:Score*Score*int) =
-    let predicted, actual, expected = score
+    let calculations = [
+        addPointsForCorrectScore (predicted,actual);
+        addPointsForCorrectResult (predicted,actual);
+        addPointsPerHomeGoal (predicted,actual);
+        addPointsPerAwayGoal (predicted,actual)
+    ]
+    
+    calculations
+    |> List.sum
 
-    let (_,_,points) = 
-        (predicted, actual, 0)
-        |> addPointsForCorrectScore
-        |> addPointsForCorrectResult
-        |> addPointsPerHomeGoal
-        |> addPointsPerAwayGoal
-    (points,expected)
-
-let assertScore score =
+let assertScore (score:int*int) =
     let actual, expected = score
     if actual = expected then true else false
 
@@ -58,5 +59,5 @@ let scores = [
 
 let calculatedResults =
     scores 
-    |> List.map calculateScore
+    |> List.map (fun (p,a,po) -> (calculateScore (p,a), po))
     |> List.map assertScore
