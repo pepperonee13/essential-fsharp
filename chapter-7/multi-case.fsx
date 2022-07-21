@@ -17,14 +17,18 @@ let (|CorrectResult|_|) (expected:Score, actual:Score) =
     | (Draw, Draw) -> Some ()
     | _ -> None
 
-let addPointsForCorrectScoreAndResult (score:Score*Score) =
+let getScorePoints (score:Score*Score) =
     match score with
-    | CorrectScore -> 400 //must include points for correct result as well
+    | CorrectScore -> 300
+    | _ -> 0
+
+let getResultPoints (score:Score*Score) =
+    match score with
     | CorrectResult -> 100
     | _ -> 0
 
 
-let addPointsPerGoal (score:Score*Score) =
+let getPointsPerGoal (score:Score*Score) =
     let expected, actual = score
     let (h,a) = expected
     let (h',a') = actual
@@ -34,16 +38,15 @@ let addPointsPerGoal (score:Score*Score) =
     (home * 15) + (away * 20)
 
 
-let calculatePoints (score:Score*Score) =
-    let predicted, actual = score
-
+let calculatePoints (expected:Score) (actual:Score) =
     let calculations = [
-        addPointsForCorrectScoreAndResult (predicted,actual);
-        addPointsPerGoal (predicted,actual);
+        getScorePoints;
+        getResultPoints;
+        getPointsPerGoal
     ]
     
     calculations
-    |> List.sum
+    |> List.sumBy (fun f -> f (expected,actual))
 
 //TESTS
 
@@ -60,5 +63,5 @@ let scores = [
 ]
 
 scores 
-|> List.map (fun (predicted,actual,expectedPoints) -> (calculatePoints (predicted,actual), expectedPoints))
+|> List.map (fun (predicted,actual,expectedPoints) -> (calculatePoints predicted actual), expectedPoints)
 |> List.map assertScore
