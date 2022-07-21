@@ -1,31 +1,32 @@
 //multi-case active patterns
 type Score = int * int
 
+let (|CorrectScore|_|) (score:Score*Score) =
+    match score with
+    | (h,a),(h',a') when h = h' && a = a' -> Some ()
+    | _ -> None
+
 let addPointsForCorrectScore (score:Score*Score) =
-    let predicted, actual = score
-    match predicted,actual with
-    | (h,a),(h',a') when h = h' && a = a' -> 300
+    match score with
+    | CorrectScore -> 300
     | _ -> 0
 
 let addPointsForCorrectResult (score:Score*Score) =
-    let predicted, actual = score
-    match predicted,actual with
+    match score with
     | (h,a),(h',a') when h > a && h' > a' -> 100
     | (h,a),(h',a') when h < a && h' < a' -> 100
     | (h,a),(h',a') when h = a && h' = a' -> 100
     | _ -> 0
 
 let addPointsPerHomeGoal (score:Score*Score) =
-    let predicted, actual  = score
-    match predicted,actual with
+    match score with
     | (h,a),(h',a') when h < h' -> h*15
     | (h,a),(h',a') when h' < h -> h'*15
     | (h,a),(h',a') when h' = h -> h'*15
     | _ -> 0
 
 let addPointsPerAwayGoal (score:Score*Score) =
-    let predicted, actual  = score
-    match predicted,actual with
+    match score with
     | (h,a),(h',a') when a < a' -> a*20
     | (h,a),(h',a') when a' < a -> a'*20
     | (h,a),(h',a') when a' = a -> a'*20
