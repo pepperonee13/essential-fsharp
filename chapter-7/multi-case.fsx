@@ -6,6 +6,21 @@ let (|CorrectScore|_|) (score:Score*Score) =
     | (h,a),(h',a') when h = h' && a = a' -> Some ()
     | _ -> None
 
+let (|HomeWin|_|) score =
+    match score with    
+    | (h,a),(h',a') when h > a && h' > a' -> Some ()
+    | _ -> None
+
+let (|AwayWin|_|) score =
+    match score with    
+    | (h,a),(h',a') when h < a && h' < a' -> Some ()
+    | _ -> None
+
+let (|Draw|_|) score =
+    match score with    
+    | (h,a),(h',a') when h = a && h' = a' -> Some ()
+    | _ -> None
+
 let addPointsForCorrectScore (score:Score*Score) =
     match score with
     | CorrectScore -> 300
@@ -13,9 +28,9 @@ let addPointsForCorrectScore (score:Score*Score) =
 
 let addPointsForCorrectResult (score:Score*Score) =
     match score with
-    | (h,a),(h',a') when h > a && h' > a' -> 100
-    | (h,a),(h',a') when h < a && h' < a' -> 100
-    | (h,a),(h',a') when h = a && h' = a' -> 100
+    | HomeWin -> 100
+    | AwayWin -> 100
+    | Draw -> 100
     | _ -> 0
 
 let addPointsPerHomeGoal (score:Score*Score) =
