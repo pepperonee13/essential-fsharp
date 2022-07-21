@@ -1,24 +1,20 @@
 //multi-case active patterns
 type Score = int * int
 
-let (|CorrectScore|_|) (score:Score*Score) =
+let (|CorrectScore|_|) (expected:Score, actual:Score) =
+    if expected = actual then Some () else None
+
+let (|HomeWin|AwayWin|Draw|) (score:Score) =
     match score with
-    | (h,a),(h',a') when h = h' && a = a' -> Some ()
-    | _ -> None
+    | (h,a) when h = a -> Draw
+    | (h,a) when h > a -> HomeWin
+    | _ -> AwayWin
 
-let (|HomeWin|_|) score =
-    match score with    
-    | (h,a),(h',a') when h > a && h' > a' -> Some ()
-    | _ -> None
-
-let (|AwayWin|_|) score =
-    match score with    
-    | (h,a),(h',a') when h < a && h' < a' -> Some ()
-    | _ -> None
-
-let (|Draw|_|) score =
-    match score with    
-    | (h,a),(h',a') when h = a && h' = a' -> Some ()
+let (|CorrectResult|_|) (expected:Score, actual:Score) =
+    match (expected, actual) with
+    | (HomeWin, HomeWin) -> Some ()
+    | (AwayWin, AwayWin) -> Some ()
+    | (Draw, Draw) -> Some ()
     | _ -> None
 
 let addPointsForCorrectScore (score:Score*Score) =
@@ -28,9 +24,7 @@ let addPointsForCorrectScore (score:Score*Score) =
 
 let addPointsForCorrectResult (score:Score*Score) =
     match score with
-    | HomeWin -> 100
-    | AwayWin -> 100
-    | Draw -> 100
+    | CorrectResult -> 100
     | _ -> 0
 
 let addPointsPerHomeGoal (score:Score*Score) =
