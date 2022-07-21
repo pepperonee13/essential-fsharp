@@ -27,19 +27,14 @@ let addPointsForCorrectResult (score:Score*Score) =
     | CorrectResult -> 100
     | _ -> 0
 
-let addPointsPerHomeGoal (score:Score*Score) =
-    match score with
-    | (h,a),(h',a') when h < h' -> h*15
-    | (h,a),(h',a') when h' < h -> h'*15
-    | (h,a),(h',a') when h' = h -> h'*15
-    | _ -> 0
+let addPointsPerGoal (score:Score*Score) =
+    let expected, actual = score
+    let (h,a) = expected
+    let (h',a') = actual
 
-let addPointsPerAwayGoal (score:Score*Score) =
-    match score with
-    | (h,a),(h',a') when a < a' -> a*20
-    | (h,a),(h',a') when a' < a -> a'*20
-    | (h,a),(h',a') when a' = a -> a'*20
-    | _ -> 0
+    let home = [h;h'] |> List.min
+    let away = [a;a'] |> List.min
+    (home * 15) + (away * 20)
 
 
 let calculateScore (score:Score*Score) =
@@ -48,8 +43,7 @@ let calculateScore (score:Score*Score) =
     let calculations = [
         addPointsForCorrectScore (predicted,actual);
         addPointsForCorrectResult (predicted,actual);
-        addPointsPerHomeGoal (predicted,actual);
-        addPointsPerAwayGoal (predicted,actual)
+        addPointsPerGoal (predicted,actual);
     ]
     
     calculations
