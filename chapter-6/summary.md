@@ -8,6 +8,7 @@
     - Seq.choose ignores None 
         - id means (fun x -> x)
 - printfn "%A" -> prints readable string on records (.ToString()?)
-- [|] -> array
+- [||] -> array
+- [] -> list
 - Questions:
     - when to set function signature explicitly
