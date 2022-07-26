@@ -15,3 +15,10 @@ sprintf function
 
 Chapter 8 Part homework
     private ctor for record does not seem to work
+
+
+//why can I still access the private ctor?
+```fsharp
+let x = Spend 2000.0M
+```
+

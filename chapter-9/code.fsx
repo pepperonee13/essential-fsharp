@@ -29,18 +29,24 @@ type Customer =
     | EligibleRegistered of RegisteredCustomer
     | Registered of RegisteredCustomer
     | Guest of UnregisteredCustomer
+    with 
+        //this breaks the link between discount and spend
+        member this.Discount =
+            match this with
+            | EligibleRegistered _ -> 0.1M
+            | _ -> 0.0M
+        member this.CalculateDiscountPercentage(spend:Spend) =
+            match this with
+            | EligibleRegistered _ -> 
+                if spend.Value >= 100.0M then 0.1M else 0.0M
+            | _ -> 0.0M
 
 //Option 1 - function type
 // type CalculateTotal = Customer -> Spend -> Total 
 
 //Option 2 - explicit parameters
 let calculateTotal (customer:Customer) (spend:Spend) : Total =
-    let discount =
-        match customer with
-        | EligibleRegistered _ when spend.Value >= 100.0M -> spend.Value * 0.1M
-        | _ -> 0.0M
-
-    spend.Value - discount
+    spend.Value * (1.0M - customer.CalculateDiscountPercentage spend)
 
 let john = EligibleRegistered { Id = "John" }
 let mary = EligibleRegistered { Id = "Mary" }
