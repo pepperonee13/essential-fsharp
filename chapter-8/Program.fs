@@ -3,24 +3,6 @@ open System.IO
 open System.Text.RegularExpressions
 open FsToolkit.ErrorHandling.ValidationCE
 
-type Customer = {
-    CustomerId : string
-    Email : string
-    IsEligible : string
-    IsRegistered : string
-    DateRegistered : string
-    Discount : string
-}
-
-type ValidatedCustomer = {
-    CustomerId: string
-    Email: string option
-    IsEligible: bool
-    IsRegistered: bool
-    DateRegistered: DateTime option
-    Discount: decimal option
-}
-
 type ValidationError = 
     | MissingData of name: string
     | InvalidData of name: string * value: string
@@ -82,60 +64,75 @@ let validateDiscount (discount:string) =
     | IsDecimal value -> Ok (Some value)
     | _ -> Error (InvalidData ("Discount", discount))
 
-let create customerId email isEligible isRegistered dateRegistered discount = 
-    {
-        CustomerId = customerId
-        Email = email
-        IsEligible = isEligible
-        IsRegistered = isRegistered
-        DateRegistered = dateRegistered
-        Discount = discount
-    }
+type Customer = {
+    CustomerId : string
+    Email : string
+    IsEligible : string
+    IsRegistered : string
+    DateRegistered : string
+    Discount : string
+}
 
-let getError input = 
-    match input with
-    | Ok _ -> []
-    | Error ex -> [ ex ]
+type ValidatedCustomer = private {
+    CustomerId: string
+    Email: string option
+    IsEligible: bool
+    IsRegistered: bool
+    DateRegistered: DateTime option
+    Discount: decimal option
+}
+with 
+    static member Create (input:Customer) =
+        validation {
+            let! customerId = 
+                input.CustomerId 
+                |> validateCustomerId
+                |> Result.mapError (fun ex -> [ex])
 
-let getValue input =
-    match input with
-    | Ok v -> v
-    | _ -> failwith "oops we shouldn't get here"
+            and! email = 
+                input.Email 
+                |> validateEmail
+                |> Result.mapError (fun ex -> [ex])
 
-let validate (input:Customer) : Result<ValidatedCustomer, ValidationError list> =
-    validation {
-        let! customerId = 
-            input.CustomerId 
-            |> validateCustomerId
-            |> Result.mapError (fun ex -> [ex])
+            and! isEligible = 
+                input.IsEligible 
+                |> validateIsEligible
+                |> Result.mapError (fun ex -> [ex])
 
-        and! email = 
-            input.Email 
-            |> validateEmail
-            |> Result.mapError (fun ex -> [ex])
+            and! isRegistered = 
+                input.IsRegistered 
+                |> validateIsRegistered
+                |> Result.mapError (fun ex -> [ex])
 
-        and! isEligible = 
-            input.IsEligible 
-            |> validateIsEligible
-            |> Result.mapError (fun ex -> [ex])
+            and! dateRegistered = 
+                input.DateRegistered 
+                |> validateDateRegistered
+                |> Result.mapError (fun ex -> [ex])
 
-        and! isRegistered = 
-            input.IsRegistered 
-            |> validateIsRegistered
-            |> Result.mapError (fun ex -> [ex])
+            and! discount = 
+                input.Discount 
+                |> validateDiscount
+                |> Result.mapError (fun ex -> [ex])
 
-        and! dateRegistered = 
-            input.DateRegistered 
-            |> validateDateRegistered
-            |> Result.mapError (fun ex -> [ex])
+            return {
+                CustomerId = customerId
+                Email = email
+                IsEligible = isEligible
+                IsRegistered = isRegistered
+                DateRegistered = dateRegistered
+                Discount = discount
+            }
+        }
 
-        and! discount = 
-            input.Discount 
-            |> validateDiscount
-            |> Result.mapError (fun ex -> [ex])
-
-        return create customerId email isEligible isRegistered dateRegistered discount
-    }
+//why does this work?
+let tryThis = { 
+    CustomerId= "1";
+    Email = (Some "email");
+    IsEligible = false;
+    IsRegistered = false;
+    DateRegistered = (Some DateTime.Now);
+    Discount = (Some 2.0M)
+}
 
 type DataReader = string -> Result<string seq,exn>
 
@@ -169,7 +166,7 @@ let parse (data:string seq) =
     |> Seq.skip 1
     |> Seq.map parseLine
     |> Seq.choose id
-    |> Seq.map validate
+    |> Seq.map ValidatedCustomer.Create
 
 let output data =
     data
